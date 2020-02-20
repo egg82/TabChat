@@ -13,7 +13,7 @@ DROP TABLE IF EXISTS `{prefix}channels`;
 CREATE TABLE `{prefix}channels` (
   `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `format` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '&6[&r{server}&r&6] [&3{world}&6] [&r{channel}&r&6] &b{displayname} &7>>&r {message}',
+  `format` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '&6[&r{server}&r&6] [&3{world}&6] &b{displayname} &7>>&r {message}',
   `cooldown` bigint(8) unsigned NOT NULL DEFAULT 0,
   `distance` bigint(8) NOT NULL DEFAULT -2,
   PRIMARY KEY (`id`),
