@@ -13,7 +13,8 @@ DROP TABLE IF EXISTS `{prefix}channels`;
 CREATE TABLE `{prefix}channels` (
   `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(10) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `format` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '&6[&r{server}&r&6] [&3{world}&6] &b{displayname} &7>>&r {message}',
+  `prefix` char(1) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `format` varchar(1024) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '&6[&r{server}&r&6] [&3{world}&6] &b{prefix} {displayname} {suffix} &7>>&r {message}',
   `cooldown` bigint(8) unsigned NOT NULL DEFAULT 0,
   `distance` bigint(8) NOT NULL DEFAULT -2,
   PRIMARY KEY (`id`),
@@ -43,6 +44,8 @@ DROP TABLE IF EXISTS `{prefix}players`;
 CREATE TABLE `{prefix}players` (
   `id` bigint(8) unsigned NOT NULL AUTO_INCREMENT,
   `uuid` char(36) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(16) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `display_name` varchar(256) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `{prefix}uuid_UNIQUE` (`uuid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -114,5 +117,34 @@ CREATE TABLE `{prefix}mute` (
   CONSTRAINT `{prefix}fk_mute_player_id` FOREIGN KEY (`player_id`) REFERENCES `{prefix}players` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT,
   CONSTRAINT `{prefix}fk_mute_staff_id` FOREIGN KEY (`staff_id`) REFERENCES `{prefix}players` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+DROP PROCEDURE IF EXISTS `{prefix}get_queue_id`;
+DELIMITER ;;
+CREATE PROCEDURE `{prefix}get_queue_id`(`after` BIGINT UNSIGNED, `server_id` BIGINT)
+BEGIN
+  SELECT
+    `c`.`id`,
+    `s`.`uuid` AS `server_id`,
+    `s`.`name` AS `server_name`,
+    `p`.`uuid` AS `player_id`,
+    `p`.`name` AS `player_name`,
+    `p`.`display_name` AS `player_display_name`,
+    `c`.`channel`,
+    `l`.`name` AS `channel_name`,
+    `w`.`id` AS `world_id`,
+    `w`.`name` AS `world_name`,
+    `c`.`location_x`,
+    `c`.`location_y`,
+    `c`.`location_z`,
+    `c`.`message`,
+    `c`.`date`
+  FROM `{prefix}posted_chat` `c`
+  JOIN `{prefix}servers` `s` ON `s`.`id` = `c`.`server_id`
+  JOIN `{prefix}players` `p` ON `p`.`id` = `c`.`player_id`
+  JOIN `{prefix}channels` `l` ON `l`.`id` = `c`.`channel`
+  JOIN `{prefix}worlds` `w` ON `w`.`id` = `c`.`world_id`
+  WHERE `server_id` <> `c`.`server_id` AND `c`.`id` > `after`;
+END ;;
+DELIMITER ;
 
 SET FOREIGN_KEY_CHECKS = 1;
