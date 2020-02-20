@@ -3,6 +3,6 @@ main: me.egg82.tchat.BukkitBootstrap
 version: 1.0.0
 author: egg82
 api-version: 1.13
-description: A simple, intuitive chat system for your server
+description: A simple, intuitive chat system for your server, omelette-du-bavardage-style
 softdepend: [Plan]
 loadbefore: [Boss, Confiscate, CoreArena, ChatControl, AutoPlay, Winter, Puncher] # This is absolutely insane, but this somehow solves a random bug. Somehow.
